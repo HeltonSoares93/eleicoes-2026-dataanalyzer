@@ -64,7 +64,10 @@ def _csvs_no_zip(caminho: Path) -> list[str]:
         nomes = [n for n in z.namelist() if n.lower().endswith(".csv")]
     if not nomes:
         raise ValueError(f"Nenhum CSV dentro de {caminho}. Confira se é o arquivo do TSE.")
-    return nomes
+    # Alguns zips do TSE trazem um CSV por UF E um CSV do Brasil inteiro (_BR.csv).
+    # Ler todos contaria tudo em dobro: se houver o do Brasil, usa só ele.
+    brasil = [n for n in nomes if n.upper().endswith("_BR.CSV")]
+    return brasil or nomes
 
 
 def ler_zip_tse(
