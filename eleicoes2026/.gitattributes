@@ -1,0 +1,5 @@
+*.ipynb text eol=lf
+*.py text eol=lf
+*.yaml text eol=lf
+*.csv -text
+*.json -text

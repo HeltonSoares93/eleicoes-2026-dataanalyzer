@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eleição presidencial 2026 em mapas</title>
+  <meta name="description" content="Resultados da eleição presidencial brasileira de 2026 por município, com dados abertos do TSE: mapas, abstenção, distribuição por UF e transferência de votos entre turnos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='16' height='32' fill='%232a78d6'/%3E%3Crect x='16' width='16' height='32' fill='%23eb6834'/%3E%3C/svg%3E">
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topo">
+    <div class="largura">
+      <h1 id="titulo">Eleição presidencial</h1>
+      <p class="sub" id="subtitulo">Resultado por município, com dados abertos do Tribunal Superior Eleitoral.</p>
+
+      <div class="controles" role="group" aria-label="Filtros">
+        <div class="segmentado" id="ctl-turno" role="radiogroup" aria-label="Turno"></div>
+        <label class="campo">
+          <span>Recorte</span>
+          <select id="ctl-uf" aria-label="Recorte geográfico"><option value="BR">Brasil</option></select>
+        </label>
+      </div>
+
+      <section class="apuracao" aria-labelledby="titulo" id="apuracao">
+        <div class="apuracao-nomes">
+          <div class="cand cand-a"><span class="nome" id="nome-a"></span><span class="pct" id="pct-a"></span><span class="votos" id="votos-a"></span></div>
+          <div class="cand cand-b"><span class="nome" id="nome-b"></span><span class="pct" id="pct-b"></span><span class="votos" id="votos-b"></span></div>
+        </div>
+        <div class="barra" id="barra" role="img" aria-label="">
+          <div class="seg seg-a" id="seg-a"></div>
+          <div class="seg seg-o" id="seg-o"></div>
+          <div class="seg seg-b" id="seg-b"></div>
+          <div class="meio" aria-hidden="true"></div>
+        </div>
+        <p class="apuracao-rodape" id="apuracao-rodape"></p>
+      </section>
+    </div>
+  </header>
+
+  <main id="conteudo" class="largura">
+    <section class="bloco" aria-labelledby="h-mapa">
+      <div class="bloco-cab">
+        <h2 id="h-mapa">Mapa por município</h2>
+        <div class="controles controles-mapa">
+          <label class="campo">
+            <span>Mostrar</span>
+            <select id="ctl-metrica" aria-label="Indicador do mapa"></select>
+          </label>
+          <div class="segmentado" id="ctl-vista" role="radiogroup" aria-label="Tipo de mapa"></div>
+        </div>
+      </div>
+      <p class="explica" id="explica-mapa"></p>
+      <div class="mapa-grade">
+        <figure class="mapa" id="mapa"><svg role="img" aria-label="Mapa dos municípios"></svg></figure>
+        <aside class="painel" id="painel" aria-live="polite"></aside>
+      </div>
+      <div class="legenda" id="legenda"></div>
+    </section>
+
+    <section class="bloco" aria-labelledby="h-uf">
+      <h2 id="h-uf">Votos válidos por estado</h2>
+      <p class="explica">Estados ordenados pela votação do primeiro colocado nacional. A linha marca 50%.</p>
+      <div id="graf-uf" class="graf"></div>
+      <h3 class="h-menor">Por região</h3>
+      <div id="graf-regiao" class="graf"></div>
+    </section>
+
+    <section class="bloco" aria-labelledby="h-dist">
+      <h2 id="h-dist">Como os municípios se distribuem</h2>
+      <div class="duas-colunas">
+        <div>
+          <h3 class="h-menor">Diferença entre os finalistas</h3>
+          <p class="explica" id="explica-hist-margem"></p>
+          <div id="hist-margem" class="graf"></div>
+        </div>
+        <div>
+          <h3 class="h-menor">Abstenção</h3>
+          <p class="explica">Número de municípios por faixa de abstenção (eleitores aptos que não votaram).</p>
+          <div id="hist-abst" class="graf"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bloco" aria-labelledby="h-tab">
+      <h2 id="h-tab">Municípios</h2>
+      <label class="campo campo-busca">
+        <span>Buscar</span>
+        <input id="busca" type="search" placeholder="Nome do município" autocomplete="off">
+      </label>
+      <div class="tabela-rolagem"><table id="tabela"></table></div>
+      <p class="explica" id="tabela-rodape"></p>
+    </section>
+
+    <section class="bloco avancado" id="avancado" aria-labelledby="h-avancado" hidden>
+      <h2 id="h-avancado">Análises avançadas</h2>
+      <p class="intro">Estas análises usam modelos estatísticos. Os números são estimativas, não contagens: cada uma vem com o que ela supõe e o que ela não permite concluir.</p>
+
+      <article class="analise" id="an-transf" hidden>
+        <h3>Para onde foram os votos do 1º turno</h3>
+        <p id="txt-transf"></p>
+        <div id="graf-transf" class="graf"></div>
+        <p class="ressalva"><strong>Ressalvas.</strong> É uma estimativa do padrão médio, feita por inferência ecológica a partir dos totais de cada seção eleitoral; o voto é secreto e não se observa a escolha de ninguém. O método supõe que eleitores de seções de um mesmo estado se comportam de forma parecida. Quem deixou de votar, ou passou a votar, entre os turnos não é modelado. A faixa abaixo de cada número é o intervalo de confiança de 95%.</p>
+      </article>
+
+      <article class="analise" id="an-espacial" hidden>
+        <h3>O voto forma blocos geográficos?</h3>
+        <p id="txt-espacial"></p>
+        <div class="mapa-pequeno"><svg id="mapa-lisa" role="img" aria-label="Mapa de blocos geográficos de voto"></svg></div>
+        <div class="legenda" id="legenda-lisa"></div>
+        <p class="ressalva"><strong>Ressalvas.</strong> Vizinhos são municípios que fazem fronteira. A significância é testada município a município (5%), sem correção para comparações múltiplas, então alguns destaques isolados podem ser acaso. Um bloco mostra onde o voto se concentra, não explica por quê.</p>
+      </article>
+
+      <article class="analise" id="an-regressao" hidden>
+        <h3>Voto e perfil dos municípios</h3>
+        <p id="txt-regressao"></p>
+        <div id="graf-regressao" class="graf"></div>
+        <p class="ressalva"><strong>Ressalvas.</strong> Mostra associação entre municípios, não causa, e não descreve o eleitor individual. Os indicadores sociais são do Censo 2010 (Atlas do Desenvolvimento Humano) e a população é do Censo 2022. Variáveis muito correlacionadas entre si, como renda e escolaridade, dividem o efeito.</p>
+      </article>
+
+      <article class="analise" id="an-gbm" hidden>
+        <h3>O que mais ajuda a prever o resultado</h3>
+        <p id="txt-gbm"></p>
+        <div id="graf-gbm" class="graf"></div>
+        <p class="ressalva"><strong>Ressalvas.</strong> Importância para a previsão não é efeito causal. O modelo (gradient boosting) é sempre avaliado em estados que ele não viu no treino, para não superestimar o acerto por proximidade geográfica. A importância é o impacto médio de cada indicador na previsão (valores SHAP), em pontos percentuais.</p>
+      </article>
+
+      <p class="explica">Metodologia completa e código: <a id="link-notebook" href="https://github.com/HeltonSoares93/eleicoes-2026-dataanalyzer/blob/main/notebooks/02_ciencia_de_dados.ipynb">notebook de ciência de dados</a>.</p>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <div class="largura">
+      <p>Fontes: TSE (votação por seção eleitoral e detalhe da apuração), IBGE (malha municipal e Censo 2022) e Atlas do Desenvolvimento Humano (PNUD, Ipea, FJP). Percentuais sobre votos válidos. Votos do exterior e em trânsito entram nos totais, mas não no mapa.</p>
+      <p>Código e dados processados: <a href="https://github.com/HeltonSoares93/eleicoes-2026-dataanalyzer">github.com/HeltonSoares93/eleicoes-2026-dataanalyzer</a>. <span id="gerado"></span></p>
+    </div>
+  </footer>
+
+  <div class="dica" id="dica" role="tooltip" hidden></div>
+  <noscript><p class="largura">Esta página precisa de JavaScript para desenhar os mapas e gráficos.</p></noscript>
+  <script src="vendor/d3.v7.9.0.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

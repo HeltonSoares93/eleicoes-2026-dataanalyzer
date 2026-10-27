@@ -1,0 +1,43 @@
+# Configuração do projeto. Para analisar outro ano, edite aqui; nenhum código precisa mudar.
+
+ano_principal: 2026        # eleição analisada nos notebooks
+ano_comparacao: 2022       # eleição usada na comparação (swing). Deixe vazio para pular.
+
+# Arquivos do TSE (baixados por `python -m eleicoes.baixar`).
+# {ano} é substituído pelo ano.
+tse:
+  votacao_secao: https://cdn.tse.jus.br/estatistica/sead/odsele/votacao_secao/votacao_secao_{ano}_BR.zip
+  detalhe_munzona: https://cdn.tse.jus.br/estatistica/sead/odsele/detalhe_votacao_munzona/detalhe_votacao_munzona_{ano}.zip
+
+# Fontes externas fixadas em um commit específico: o mesmo arquivo é baixado
+# hoje e daqui a um ano (reprodutibilidade).
+externas:
+  malha_municipios:
+    url: https://raw.githubusercontent.com/tbrugz/geodata-br/c39dfb040bfd466fe2a476bafed00749c5c42f16/geojson/geojs-100-mun.json
+    arquivo: geojs-100-mun.json
+    sha256: 8dff9ec76216198929c5a8a30d1576df0cd66d572d914c2376528c3849ec8d72
+    descricao: Malha municipal IBGE (polígonos), código IBGE na coluna "id"
+  depara_tse_ibge:
+    url: https://raw.githubusercontent.com/betafcc/Municipios-Brasileiros-TSE/fe2694220eb7280a3df01e985641f34078989aa8/municipios_brasileiros_tse.csv
+    arquivo: municipios_tse_ibge.csv
+    sha256: 723eae7e5ac570370137777e4de8e5679af2fe29a05dd0b4ff04235cca5b901a
+    descricao: Correspondência entre código de município do TSE e do IBGE
+  atlas_idhm:
+    url: https://raw.githubusercontent.com/mauriciocramos/IDHM/f960e9725c68aec633d704e527855b37fd911c82/municipal.csv
+    arquivo: atlas_idhm_municipal.csv
+    sha256: 53de49d28b9be59fcafcde921d2ae15c3f4cd465ab77b35a7312f292353cfe0a
+    descricao: Atlas do Desenvolvimento Humano (PNUD/IPEA/FJP), Censos 1991-2010
+  municipios_censo2022:
+    url: https://raw.githubusercontent.com/CaiqueDourado/municipios-e-estados-do-brasil/36ac9ebf93188e2fab74d097c7309152ff9ef616/data/municipios.csv
+    arquivo: municipios_censo2022.csv
+    sha256: 47100fbdea4174983c37cd15787fa828fdffe54fc4bce6fb7bef3d214ca94bed
+    descricao: População e área (Censo 2022), região, latitude/longitude
+
+# Totais oficiais para conferência automática (opcional).
+# Preencha com os números do site de resultados do TSE e o teste
+# tests/test_dados_reais.py passa a compará-los com a sua base.
+# Exemplo:
+# oficial:
+#   2026:
+#     1: {13: 53879538, 22: 56104503}
+oficial: {}

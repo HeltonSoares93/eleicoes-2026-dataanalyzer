@@ -1,0 +1,37 @@
+name: Publicar página
+
+# Publica a pasta site/ no GitHub Pages a cada push na main que altere a página.
+# Os dados (site/data/) são gerados no seu computador com
+# `python -m eleicoes.exportar_site` e enviados junto no commit.
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Conferir se os dados existem
+        run: |
+          test -f site/data/meta.json || { echo "::error::site/data/ vazio. Rode 'python -m eleicoes.exportar_site' e faça commit de site/data/."; exit 1; }
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
