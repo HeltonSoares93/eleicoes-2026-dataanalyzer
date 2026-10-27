@@ -15,6 +15,11 @@ from eleicoes.dados import FORA_DO_MAPA
 APELIDOS = {
     "LUIZ INÁCIO LULA DA SILVA": "Lula",
     "JAIR MESSIAS BOLSONARO": "Jair Bolsonaro",
+    "FLAVIO NANTES BOLSONARO": "Flávio Bolsonaro",
+    "AUGUSTO JORGE CURY": "Augusto Cury",
+    "RENAN ANTONIO FERREIRA DOS SANTOS": "Renan Santos",
+    "RONALDO RAMOS CAIADO": "Ronaldo Caiado",
+    "ROMEU ZEMA NETO": "Romeu Zema",
 }
 
 
@@ -148,6 +153,11 @@ def municipios(df: pd.DataFrame, turno: int, fin: dict) -> pd.DataFrame:
     out["dif_A_B"] = out["pct_A"] - out["pct_B"]
     out["nome_vencedor"] = out["vencedor"].map(fin["rotulos"])
     return out.reset_index()
+
+
+def turnos_com_abstencao(comp: pd.DataFrame | None) -> list[int]:
+    """Turnos presentes no detalhe da apuração (pode ter só o 1º enquanto o TSE não atualiza)."""
+    return [] if comp is None else sorted(int(t) for t in comp["NR_TURNO"].unique())
 
 
 def abstencao(comp: pd.DataFrame, nivel: str) -> pd.DataFrame:

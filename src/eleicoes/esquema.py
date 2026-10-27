@@ -71,10 +71,13 @@ COMPARECIMENTO_MUNICIPIO = DataFrameSchema(
     },
     checks=[
         Check(
-            lambda d: d["QT_COMPARECIMENTO"] + d["QT_ABSTENCOES"] == d["QT_APTOS"],
+            # tolera diferenças de poucos eleitores (seções não instaladas, ajustes do TSE)
+            lambda d: (
+                (d["QT_COMPARECIMENTO"] + d["QT_ABSTENCOES"] - d["QT_APTOS"]).abs()
+                <= (d["QT_APTOS"] * 0.001).clip(lower=5)
+            ),
             element_wise=False,
-            error="aptos = comparecimento + abstenções",
-            # aviso, não erro: seções não instaladas podem gerar pequenas diferenças
+            error="aptos = comparecimento + abstenções (tolerância de 0,1% ou 5 eleitores)",
             raise_warning=True,
         ),
     ],

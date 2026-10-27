@@ -124,3 +124,12 @@ def test_pagina_no_navegador(site):
             assert not erros, erros
     finally:
         servidor.shutdown()
+
+
+def test_exportar_com_abstencao_so_do_1o_turno(projeto_abstencao_parcial):
+    from eleicoes.exportar_site import exportar
+
+    destino = exportar(avancado=False)
+    m = json.loads((destino / "data" / "municipios.json").read_text(encoding="utf-8"))
+    assert any(v is not None for v in m["t1"]["abst"])
+    assert all(v is None for v in m["t2"]["abst"])

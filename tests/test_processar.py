@@ -130,3 +130,24 @@ def test_erro_se_ano_do_arquivo_diferente(raiz_vazia):
     escrever_votacao_secao(sec, raiz_vazia / "data/raw/votacao_secao_2026_BR.zip")
     with pytest.raises(ValueError, match="ANO_ELEICAO"):
         processar_ano(2026)
+
+
+def test_zip_com_csv_por_uf_e_do_brasil_nao_duplica(raiz_vazia):
+    """O TSE pode publicar, no mesmo zip, um CSV por UF e outro do Brasil inteiro."""
+    from amostra import COLUNAS_DETALHE
+
+    sec = simular_secoes(2026, semente=9)
+    escrever_votacao_secao(sec, raiz_vazia / "data/raw/votacao_secao_2026_BR.zip")
+    caminho = raiz_vazia / "data/raw/detalhe_votacao_munzona_2026.zip"
+    from amostra import escrever_detalhe
+
+    escrever_detalhe(sec, caminho)
+    completo = csv_de_zip(caminho)
+    with zipfile.ZipFile(caminho, "a") as z:  # acrescenta um CSV por UF, como no zip do TSE
+        for uf, parte in completo.groupby("SG_UF"):
+            linhas = "\n".join(";".join(f'"{v}"' for v in r) for r in parte[COLUNAS_DETALHE].to_numpy())
+            cab = ";".join(f'"{c}"' for c in COLUNAS_DETALHE)
+            z.writestr(f"detalhe_votacao_munzona_2026_{uf}.csv", f"{cab}\n{linhas}".encode("latin-1"))
+    r = processar_ano(2026)
+    pres = completo[completo["CD_CARGO"] == "1"]
+    assert r["comparecimento"]["QT_APTOS"].sum() == pres["QT_APTOS"].astype(int).sum()

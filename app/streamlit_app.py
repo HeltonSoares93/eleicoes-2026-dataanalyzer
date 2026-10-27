@@ -13,7 +13,13 @@ from plotly.colors import sample_colorscale
 
 from eleicoes import resultados as r
 from eleicoes.config import config, dir_processed
-from eleicoes.dados import carregar_comparecimento, carregar_malha, carregar_votos, municipios_ibge
+from eleicoes.dados import (
+    carregar_comparecimento,
+    carregar_malha,
+    carregar_votos,
+    contornos_uf,
+    municipios_ibge,
+)
 from eleicoes.graficos import COR_A, COR_A_CLARA, COR_B, COR_B_CLARA, COR_NEUTRA, milhar
 
 st.set_page_config(page_title="Eleições presidenciais", layout="wide")
@@ -69,7 +75,10 @@ if comp is not None:
         & ((comp["SG_UF"] == uf) if uf != "Brasil" else ~comp["SG_UF"].isin(["ZZ", "VT"]))
     ]
     c[3].metric(
-        "Abstenção", f"{cc['QT_ABSTENCOES'].sum() / cc['QT_APTOS'].sum() * 100:.1f}%".replace(".", ",")
+        "Abstenção",
+        f"{cc['QT_ABSTENCOES'].sum() / cc['QT_APTOS'].sum() * 100:.1f}%".replace(".", ",")
+        if len(cc)
+        else "—",
     )
 
 escala = [[0, COR_B], [0.25, COR_B_CLARA], [0.5, COR_NEUTRA], [0.75, COR_A_CLARA], [1, COR_A]]
@@ -108,7 +117,7 @@ cor_t = {
     },
 }
 if uf == "Brasil":
-    xs, ys = contornos(malha.dissolve("UF_COD").geometry)
+    xs, ys = contornos(contornos_uf(malha).geometry)
     fig.add_trace(
         go.Scatter(
             x=xs,

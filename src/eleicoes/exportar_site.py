@@ -90,7 +90,7 @@ def exportar_resumo(df, comp, fin) -> dict:
             "votos_totais": int(p["votos_totais"]),
             "brancos": int(p["brancos"]),
             "nulos": int(p["nulos"]),
-            "aptos": int(p["qt_aptos"]) if "qt_aptos" in p else None,
+            "aptos": int(p["qt_aptos"]) if pd.notna(p.get("qt_aptos")) else None,
             "abstencao_pct": _num(p["pct_abstencao"]) if "pct_abstencao" in p else None,
         }
     return out

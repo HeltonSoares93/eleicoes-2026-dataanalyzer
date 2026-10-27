@@ -17,7 +17,7 @@ from amostra import (  # noqa: E402
 RAIZ_REPO = Path(__file__).resolve().parents[1]
 
 
-def _montar_projeto(destino: Path) -> Path:
+def _montar_projeto(destino: Path, turnos_detalhe=(1, 2)) -> Path:
     """Projeto completo numa pasta temporária: config, fontes externas (recortes reais)
     e arquivos do TSE sintéticos para 2026 e 2022."""
     shutil.copy(RAIZ_REPO / "config.yaml", destino / "config.yaml")
@@ -29,7 +29,8 @@ def _montar_projeto(destino: Path) -> Path:
     for ano, semente in [(2026, 1), (2022, 2)]:
         sec = simular_secoes(ano, semente=semente)
         escrever_votacao_secao(sec, raw / f"votacao_secao_{ano}_BR.zip")
-        escrever_detalhe(sec, raw / f"detalhe_votacao_munzona_{ano}.zip", semente)
+        detalhe = sec[sec["NR_TURNO"].isin(turnos_detalhe)]
+        escrever_detalhe(detalhe, raw / f"detalhe_votacao_munzona_{ano}.zip", semente)
     return destino
 
 
@@ -57,3 +58,16 @@ def raiz_vazia(tmp_path, monkeypatch):
     shutil.copy(RAIZ_REPO / "config.yaml", tmp_path / "config.yaml")
     monkeypatch.setenv("ELEICOES_RAIZ", str(tmp_path))
     return tmp_path
+
+
+@pytest.fixture
+def projeto_abstencao_parcial(tmp_path, monkeypatch):
+    """Votos dos dois turnos, mas detalhe da apuração só do 1º (situação real logo após
+    o 2º turno, enquanto o TSE não atualiza o arquivo de detalhe)."""
+    raiz = _montar_projeto(tmp_path, turnos_detalhe=(1,))
+    monkeypatch.setenv("ELEICOES_RAIZ", str(raiz))
+    from eleicoes.processar import processar_ano
+
+    for ano in (2026, 2022):
+        processar_ano(ano)
+    return raiz

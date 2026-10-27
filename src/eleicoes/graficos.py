@@ -298,10 +298,9 @@ def shap_resumo(resultado: dict, titulo: str, nome: str = "shap_resumo"):
 
 
 def _contorno_ufs(malha):
-    m = malha[["CD_IBGE", "geometry"]].copy()
-    m["UF_COD"] = m["CD_IBGE"] // 100000
-    m["geometry"] = m.geometry.make_valid().buffer(0)
-    return m.dissolve("UF_COD")
+    from eleicoes.dados import contornos_uf
+
+    return contornos_uf(malha, simplificar=0.005)
 
 
 def _legenda_divergente(fig, ax, cmap, norm, limite, rotulo):

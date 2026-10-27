@@ -92,3 +92,14 @@ def test_rotulos_unicos_quando_nomes_coincidem():
     nomes = {13: "JOSÉ DA SILVA", 22: "JOSÉ ANTÔNIO SILVA", 30: "MARIA COSTA"}
     rot = r.rotulos_unicos(nomes, [13, 22, 30])
     assert rot == {13: "José Silva (13)", 22: "José Silva (22)", 30: "Maria Costa"}
+
+
+def test_turnos_com_abstencao(projeto_abstencao_parcial):
+    from eleicoes.dados import carregar_comparecimento, carregar_votos
+
+    assert r.turnos(carregar_votos(2026)) == [1, 2]
+    comp = carregar_comparecimento(2026)
+    assert r.turnos_com_abstencao(comp) == [1]
+    p = r.participacao(carregar_votos(2026), comp)
+    assert p.loc[2, "pct_abstencao"] != p.loc[2, "pct_abstencao"]  # NaN no 2º turno, sem erro
+    assert r.turnos_com_abstencao(None) == []

@@ -205,3 +205,62 @@ def _malha(simplificada):
     malha = gpd.read_file(simplificada)
     malha["CD_IBGE"] = malha["CD_IBGE"].astype("int64")
     return malha
+
+
+UF_SIGLA = {
+    11: "RO",
+    12: "AC",
+    13: "AM",
+    14: "RR",
+    15: "PA",
+    16: "AP",
+    17: "TO",
+    21: "MA",
+    22: "PI",
+    23: "CE",
+    24: "RN",
+    25: "PB",
+    26: "PE",
+    27: "AL",
+    28: "SE",
+    29: "BA",
+    31: "MG",
+    32: "ES",
+    33: "RJ",
+    35: "SP",
+    41: "PR",
+    42: "SC",
+    43: "RS",
+    50: "MS",
+    51: "MT",
+    52: "GO",
+    53: "DF",
+}
+
+
+def contornos_uf(malha, simplificar: float = 0.02):
+    """Contorno de cada UF a partir da malha municipal.
+
+    A malha simplificada deixa frestas entre municípios vizinhos; ao unir, elas viram
+    milhares de buracos. Um fechamento morfológico (expande e contrai 0,01°) e o descarte
+    dos buracos deixam só o contorno externo de cada UF.
+    """
+    import warnings
+
+    import shapely
+
+    m = malha[["CD_IBGE", "geometry"]].copy()
+    m["UF_COD"] = m["CD_IBGE"] // 100000
+    m["geometry"] = m.geometry.make_valid().buffer(0)
+    d = m[["UF_COD", "geometry"]].dissolve("UF_COD").reset_index()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)  # buffer em graus: suficiente para este uso
+        geom = d.geometry.buffer(0.01).buffer(-0.01).simplify(simplificar)
+
+    def sem_buracos(g):
+        partes = [shapely.Polygon(p.exterior) for p in getattr(g, "geoms", [g]) if p.area > 1e-4]
+        return partes[0] if len(partes) == 1 else shapely.MultiPolygon(partes)
+
+    d["geometry"] = [sem_buracos(g) for g in geom]
+    d["uf"] = d["UF_COD"].map(UF_SIGLA)
+    return d
